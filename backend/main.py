@@ -4,6 +4,8 @@ from pathlib import Path
 from services.pdf_services import extract_text_from_pdf
 from services.llm_service import create_json
 from dotenv import load_dotenv
+from pydantic import BaseModel
+
 
 app = FastAPI()
 
@@ -25,3 +27,17 @@ async def uplload_file(file: UploadFile = File(...)):
     resume_generated_content = create_json(resume_text,API_KEY) 
 
     return resume_generated_content
+
+class JobDescription(BaseModel):
+    text : str
+
+@app.post("/paste_JD/")
+
+async def paste_job_description(data: JobDescription):
+    char_length = len(data.text)
+    
+    return {
+        "status": "success",
+        "job_description": data.text,
+        "length": char_length
+    }
