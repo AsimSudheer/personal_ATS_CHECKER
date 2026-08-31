@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File,Form
 from pathlib import Path
 from services.pdf_services import extract_text_from_pdf
 from services.llm_service import create_json, perform_ats_check
@@ -17,17 +17,21 @@ load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 @app.post("/uploads/")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...),job_description: str = Form(...)):
     file_path = UPLOAD_DIR/file.filename
 
     with open(file_path,"wb") as f:
         f.write(await file.read())
     resume_text = extract_text_from_pdf(file_path)
-    resume_generated_content = create_json(resume_text,API_KEY) 
+    #resume_generated_content = create_json(resume_text,API_KEY) 
 
-    return resume_generated_content
+    jd_text = job_description.strip()
 
-class JobDescription(BaseModel):
+    ats_score = perform_ats_check(resume_text,jd_text,API_KEY)
+
+    return ats_score
+
+'''class JobDescription(BaseModel):
     text : str
 
 class ATSRequest(BaseModel):
@@ -50,4 +54,4 @@ async def paste_job_description(data: JobDescription):
 async def ats_checking(data: ATSRequest):
     main_result = perform_ats_check(data.resume_text, data.job_description, API_KEY)
 
-    return main_result
+    return main_result'''
