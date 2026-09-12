@@ -18,7 +18,7 @@ export default function App() {
       formData.append('file', file)
       formData.append('job_description', jobDescription)
 
-      const response = await fetch('http://localhost:8000/uploads/', {
+      const response = await fetch('https://personal-ats-checker.onrender.com/uploads/', {
         method: 'POST',
         body: formData,
       })
