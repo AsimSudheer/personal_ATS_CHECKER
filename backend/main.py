@@ -16,7 +16,8 @@ UPLOAD_DIR.mkdir(exist_ok = True)
 load_dotenv()  
 
 app.add_middleware(CORSMiddleware,
-                allow_origins = ["http://localhost:5174"],
+                allow_origins = ["*"],
+                #allow_origins = ["http://localhost:5174"],
                 allow_methods = ["*"],
                 allow_headers = ["*"])
 
@@ -28,8 +29,10 @@ async def upload_file(file: UploadFile = File(...),job_description: str = Form(.
 
     with open(file_path,"wb") as f:
         f.write(await file.read())
-    resume_text = extract_text_from_pdf(file_path)
-     
+    try:
+        resume_text = extract_text_from_pdf(file_path)
+    finally:
+        file_path.unlink(missing_ok=True)
 
     jd_text = job_description.strip()
 
